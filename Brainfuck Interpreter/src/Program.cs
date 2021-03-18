@@ -25,14 +25,34 @@ namespace Brainfuck_Interpreter
 				else
 				{
 					Console.Clear();
-					Console.WriteLine("Enter your brainfuck code:");
-					string inputString = string.Empty;
-					do
+					Console.Write("1. By file\n2. By Brainfuck code\nChoice: ");
+					var choice = Console.ReadKey().KeyChar;
+					switch(choice)
 					{
-						inputString = Console.ReadLine();
-						code += inputString;
-					} while (!(string.IsNullOrEmpty(inputString)));
-					///Console.WriteLine(code);
+						case '1':
+							string inputFilename = string.Empty;
+							do
+							{
+								Console.Clear();
+								Console.Write("Enter filename: ");
+								inputFilename = Console.ReadLine();
+							} while (!File.Exists(inputFilename));
+
+							code = File.ReadAllText(inputFilename);
+
+							Console.Write("\n");
+							break;
+						default:
+							Console.Clear();
+							Console.WriteLine("Enter your brainfuck code:");
+							string inputString = string.Empty;
+							do
+							{
+								inputString = Console.ReadLine();
+								code += inputString;
+							} while (!(string.IsNullOrEmpty(inputString)));
+							break;
+					}
 				}
 
 				brainfuckInterpreter.Instructions = code;
