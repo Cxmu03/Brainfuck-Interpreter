@@ -58,7 +58,7 @@ namespace Brainfuck_Interpreter
 				NextStep();
 			}
 
-			Console.WriteLine($">>>>Output Start<<<<<:\n{outputBuffer.ToString()}\n>>>>>Output End<<<<<\n");
+			Console.WriteLine($">>>>>Output Start<<<<<:\n{outputBuffer.ToString()}\n>>>>>Output End<<<<<\n");
 		}
 
 		private void NextStep()
@@ -90,6 +90,9 @@ namespace Brainfuck_Interpreter
 			memory[memoryPointer]--;
 		}
 
+		/// <summary>
+		/// Takes the value out of the current cell and adds the ASCII equivalent to the output buffer
+		/// </summary>
 		private void AddToOutput()
 		{
 			//Brainfuck standard to use 10 for a newline
@@ -99,6 +102,9 @@ namespace Brainfuck_Interpreter
 				outputBuffer.Append((char)memory[memoryPointer]);
 		}
 
+		/// <summary>
+		/// Logic to handle an open bracket (a loop start)
+		/// </summary>
 		private void LoopStart()
 		{
 			//If current cell is 0 then jump behind the corresponding closing bracket
@@ -113,30 +119,9 @@ namespace Brainfuck_Interpreter
 			}
 		}
 
-		private void LoopEnd()
-		{
-			if (memory[memoryPointer] == 0)
-			{
-				//Remove innermost loop begin pointer
-				loopBeginPointers.Pop();
-			}
-			else
-			{
-				//Get innermost loop begin pointer and jump there
-				instructionPointer = loopBeginPointers.Peek();
-			}
-		}
-
-		private void GetInput()
-		{
-			Console.Write("Enter a character: ");
-			char c = Console.ReadKey().KeyChar;
-			memory[memoryPointer] = (byte)c;
-
-			//Entering a newline after receiving character
-			Console.Write("\n\n");
-		}
-
+		/// <summary>
+		/// Jumps to the corresponding closing bracket of an open bracket
+		/// </summary>
 		private void JumpToMatchingClosingBracket()
 		{
 			//0 based loop depth
@@ -156,6 +141,39 @@ namespace Brainfuck_Interpreter
 			}
 		}
 
+		/// <summary>
+		/// Logic to handle a closing bracket (a loop end)
+		/// </summary>
+		private void LoopEnd()
+		{
+			if (memory[memoryPointer] == 0)
+			{
+				//Remove innermost loop begin pointer
+				loopBeginPointers.Pop();
+			}
+			else
+			{
+				//Get innermost loop begin pointer and jump there
+				instructionPointer = loopBeginPointers.Peek();
+			}
+		}
+
+		/// <summary>
+		/// Takes one byte of input and stores it in the current cell
+		/// </summary>
+		private void GetInput()
+		{
+			Console.Write("Enter a character: ");
+			char c = Console.ReadKey().KeyChar;
+			memory[memoryPointer] = (byte)c;
+
+			//Entering a newline after receiving character
+			Console.Write("\n\n");
+		}
+
+		/// <summary>
+		/// Resets the state of the interpreter
+		/// </summary>
 		public void Reset()
 		{
 			memory = new byte[32768];
