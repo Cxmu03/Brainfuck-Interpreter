@@ -30,9 +30,23 @@ namespace Brainfuck_Interpreter
 
 		private char[] tokens;
 
+		private readonly Dictionary<char, Action> tokenToAction = new Dictionary<char, Action>();
+
 		public Interpreter()
 		{
 			Reset();
+
+			tokenToAction = new Dictionary<char, Action>()
+			{
+				{ '>', () => IncrementMemoryPointer() },
+				{ '<', () => DecrementMemoryPointer() },
+				{ '+', () => IncrementCell() },
+				{ '-', () => DecrementCell() },
+				{ '.', () => AddToOutput() },
+				{ ',', () => GetInput() },
+				{ '[', () => LoopStart() },
+				{ ']', () => LoopEnd() }
+			};
 		}
 
 		public void InterpretCode()
@@ -49,62 +63,78 @@ namespace Brainfuck_Interpreter
 
 		private void NextStep()
 		{
-			switch (tokens[instructionPointer])
-			{
-				case '>':
-					memoryPointer++;
-					break;
-				case '<':
-					memoryPointer--;
-					break;
-				case '+':
-					memory[memoryPointer]++;
-					break;
-				case '-':
-					memory[memoryPointer]--;
-					break;
-				case '.':
-					//Brainfuck standard to use 10 for a newline
-					if (memory[memoryPointer] == 10)
-						outputBuffer.Append('\n');
-					else
-						outputBuffer.Append((char)memory[memoryPointer]);
-					break;
-				case ',':
-					Console.Write("Enter a character: ");
-					char c = Console.ReadKey().KeyChar;
-					memory[memoryPointer] = (byte)c;
+			var currentToken = tokens[instructionPointer];
 
-					//Entering a newline after receiving character
-					Console.Write("\n\n");
-					break;
-				case '[':
-					//If current cell is 0 then jump behind the corresponding closing bracket
-					if (memory[memoryPointer] == 0)
-					{
-						JumpToMatchingClosingBracket();
-					}
-					else
-					{
-						//Add loop begin index to stack
-						loopBeginPointers.Push(instructionPointer);
-					}
-					break;
-				case ']':
-					if (memory[memoryPointer] == 0)
-					{
-						//Remove innermost loop begin pointer
-						loopBeginPointers.Pop();
-					}
-					else
-					{
-						//Get innermost loop begin pointer and jump there
-						instructionPointer = loopBeginPointers.Peek();
-					}
-					break;
-			}
+			tokenToAction[currentToken].Invoke();
 
 			instructionPointer++;
+		}
+
+		private void IncrementMemoryPointer()
+		{
+			memoryPointer++;
+		}
+
+		private void DecrementMemoryPointer()
+		{
+			memoryPointer--;
+		}
+
+		private void IncrementCell()
+		{
+			memory[memoryPointer]++;
+		}
+
+		private void DecrementCell()
+		{
+			memory[memoryPointer]--;
+		}
+
+		private void AddToOutput()
+		{
+			//Brainfuck standard to use 10 for a newline
+			if (memory[memoryPointer] == 10)
+				outputBuffer.Append('\n');
+			else
+				outputBuffer.Append((char)memory[memoryPointer]);
+		}
+
+		private void LoopStart()
+		{
+			//If current cell is 0 then jump behind the corresponding closing bracket
+			if (memory[memoryPointer] == 0)
+			{
+				JumpToMatchingClosingBracket();
+			}
+			else
+			{
+				//Add loop begin index to stack
+				loopBeginPointers.Push(instructionPointer);
+			}
+		}
+
+		private void LoopEnd()
+		{
+			if (memory[memoryPointer] == 0)
+			{
+				//Remove innermost loop begin pointer
+				loopBeginPointers.Pop();
+			}
+			else
+			{
+				//Get innermost loop begin pointer and jump there
+				instructionPointer = loopBeginPointers.Peek();
+			}
+		}
+
+		private void GetInput()
+		{
+			Console.Write("Enter a character: ");
+			char c = Console.ReadKey().KeyChar;
+			memory[memoryPointer] = (byte)c;
+
+			//Entering a newline after receiving character
+			Console.Write("\n\n");
 		}
 
 		private void JumpToMatchingClosingBracket()
@@ -142,4 +172,3 @@ namespace Brainfuck_Interpreter
 		}
 	}
 }
-
