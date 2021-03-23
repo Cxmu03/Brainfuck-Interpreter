@@ -58,7 +58,7 @@ namespace Brainfuck_Interpreter
 				NextStep();
 			}
 
-			Console.WriteLine($"Output:\n{outputBuffer.ToString()}\n");
+			Console.WriteLine($">>>>Output Start<<<<<:\n{outputBuffer.ToString()}\n>>>>>Output End<<<<<\n");
 		}
 
 		private void NextStep()
