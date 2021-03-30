@@ -133,11 +133,15 @@ namespace Brainfuck_Interpreter
 				if (tokens[instructionPointer] == '[')
 					depth++;
 				//Corresponding bracket found
-				else if (tokens[instructionPointer] == ']' && depth == 0)
-					break;
-				//Inner closing bracket found
-				else
-					depth--;
+				else if (tokens[instructionPointer] == ']')
+				{
+					//Corresponding Bracket found
+					if (depth == 0)  break; 
+					//Inner closing Bracket
+					else depth--;
+				}
+				instructionPointer++;
+				Console.WriteLine(depth);
 			}
 		}
 
