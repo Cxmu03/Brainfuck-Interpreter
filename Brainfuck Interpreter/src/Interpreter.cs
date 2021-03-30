@@ -141,7 +141,6 @@ namespace Brainfuck_Interpreter
 					else depth--;
 				}
 				instructionPointer++;
-				Console.WriteLine(depth);
 			}
 		}
 
