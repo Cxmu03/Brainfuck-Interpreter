@@ -8,86 +8,86 @@ namespace Brainfuck_Interpreter
 	class Interpreter
 	{
 		//All valid brainfuck instructions
-		private static readonly char[] brainfuckInstructions = { '>', '<', '+', '-', '.', ',', '[', ']'};
+		private static readonly char[] BrainfuckInstructions = { '>', '<', '+', '-', '.', ',', '[', ']'};
 
 		//All the instructions to interpret
 		public string Instructions { get; set; }
 
 		//Represents the tape
-		private byte[] memory;
+		private byte[] _memory;
 
 		//Pointer to current memory address
-		private int memoryPointer;
+		private int _memoryPointer;
 
 		//Pointer to current instruction
-		private int instructionPointer;
+		private int _instructionPointer;
 
 		//Used to build the output while interpreting
-		private StringBuilder outputBuffer;
+		private StringBuilder _outputBuffer;
 
 		//Keeps track of all indices of loop begins for nested loops
-		private Stack<int> loopBeginPointers;
+		private Stack<int> _loopBeginPointers;
 
-		private char[] tokens;
+		private char[] _tokens;
 
-		private readonly Dictionary<char, Action> tokenToAction = new Dictionary<char, Action>();
+		private readonly Dictionary<char, Action> _tokenToAction = new Dictionary<char, Action>();
 
 		public Interpreter()
 		{
 			Reset();
 
-			tokenToAction = new Dictionary<char, Action>()
+			_tokenToAction = new Dictionary<char, Action>()
 			{
-				{ '>', () => IncrementMemoryPointer() },
-				{ '<', () => DecrementMemoryPointer() },
-				{ '+', () => IncrementCell() },
-				{ '-', () => DecrementCell() },
-				{ '.', () => AddToOutput() },
-				{ ',', () => GetInput() },
-				{ '[', () => LoopStart() },
-				{ ']', () => LoopEnd() }
+				{ '>', IncrementMemoryPointer },
+				{ '<', DecrementMemoryPointer },
+				{ '+', IncrementCell },
+				{ '-', DecrementCell },
+				{ '.', AddToOutput },
+				{ ',', GetInput },
+				{ '[', LoopStart },
+				{ ']', LoopEnd }
 			};
 		}
 
 		public void InterpretCode()
 		{
-			tokens = Instructions.Where(x => brainfuckInstructions.Contains(x)).ToArray();
+			_tokens = Instructions.Where(x => BrainfuckInstructions.Contains(x)).ToArray();
 
-			while(instructionPointer < tokens.Count())
+			while(_instructionPointer < _tokens.Count())
 			{
 				NextStep();
 			}
 
-			Console.WriteLine($">>>>>Output Start<<<<<:\n{outputBuffer.ToString()}\n>>>>>Output End<<<<<\n");
+			Console.WriteLine($">>>>>Output Start<<<<<:\n{_outputBuffer.ToString()}\n>>>>>Output End<<<<<\n");
 		}
 
 		private void NextStep()
 		{
-			var currentToken = tokens[instructionPointer];
+			var currentToken = _tokens[_instructionPointer];
 
-			tokenToAction[currentToken].Invoke();
+			_tokenToAction[currentToken].Invoke();
 
-			instructionPointer++;
+			_instructionPointer++;
 		}
 
 		private void IncrementMemoryPointer()
 		{
-			memoryPointer++;
+			_memoryPointer++;
 		}
 
 		private void DecrementMemoryPointer()
 		{
-			memoryPointer--;
+			_memoryPointer--;
 		}
 
 		private void IncrementCell()
 		{
-			memory[memoryPointer]++;
+			_memory[_memoryPointer]++;
 		}
 
 		private void DecrementCell()
 		{
-			memory[memoryPointer]--;
+			_memory[_memoryPointer]--;
 		}
 
 		/// <summary>
@@ -96,10 +96,10 @@ namespace Brainfuck_Interpreter
 		private void AddToOutput()
 		{
 			//Brainfuck standard to use 10 for a newline
-			if (memory[memoryPointer] == 10)
-				outputBuffer.Append('\n');
+			if (_memory[_memoryPointer] == 10)
+				_outputBuffer.Append('\n');
 			else
-				outputBuffer.Append((char)memory[memoryPointer]);
+				_outputBuffer.Append((char)_memory[_memoryPointer]);
 		}
 
 		/// <summary>
@@ -108,14 +108,14 @@ namespace Brainfuck_Interpreter
 		private void LoopStart()
 		{
 			//If current cell is 0 then jump behind the corresponding closing bracket
-			if (memory[memoryPointer] == 0)
+			if (_memory[_memoryPointer] == 0)
 			{
 				JumpToMatchingClosingBracket();
 			}
 			else
 			{
 				//Add loop begin index to stack
-				loopBeginPointers.Push(instructionPointer);
+				_loopBeginPointers.Push(_instructionPointer);
 			}
 		}
 
@@ -126,21 +126,21 @@ namespace Brainfuck_Interpreter
 		{
 			//0 based loop depth
 			int depth = 0;
-			instructionPointer++;
-			while (instructionPointer < tokens.Count())
+			_instructionPointer++;
+			while (_instructionPointer < _tokens.Count())
 			{
 				//New loop is one depth deeper
-				if (tokens[instructionPointer] == '[')
+				if (_tokens[_instructionPointer] == '[')
 					depth++;
 				//Corresponding bracket found
-				else if (tokens[instructionPointer] == ']')
+				else if (_tokens[_instructionPointer] == ']')
 				{
 					//Corresponding Bracket found
 					if (depth == 0)  break; 
 					//Inner closing Bracket
 					else depth--;
 				}
-				instructionPointer++;
+				_instructionPointer++;
 			}
 		}
 
@@ -149,15 +149,15 @@ namespace Brainfuck_Interpreter
 		/// </summary>
 		private void LoopEnd()
 		{
-			if (memory[memoryPointer] == 0)
+			if (_memory[_memoryPointer] == 0)
 			{
 				//Remove innermost loop begin pointer
-				loopBeginPointers.Pop();
+				_loopBeginPointers.Pop();
 			}
 			else
 			{
 				//Get innermost loop begin pointer and jump there
-				instructionPointer = loopBeginPointers.Peek();
+				_instructionPointer = _loopBeginPointers.Peek();
 			}
 		}
 
@@ -168,7 +168,7 @@ namespace Brainfuck_Interpreter
 		{
 			Console.Write("Enter a character: ");
 			char c = Console.ReadKey().KeyChar;
-			memory[memoryPointer] = (byte)c;
+			_memory[_memoryPointer] = (byte)c;
 
 			//Entering a newline after receiving character
 			Console.Write("\n\n");
@@ -179,17 +179,17 @@ namespace Brainfuck_Interpreter
 		/// </summary>
 		public void Reset()
 		{
-			memory = new byte[32768];
+			_memory = new byte[32768];
 
-			memoryPointer = 0;
+			_memoryPointer = 0;
 
-			instructionPointer = 0;
+			_instructionPointer = 0;
 
 			Instructions = string.Empty;
 
-			outputBuffer = new StringBuilder();
+			_outputBuffer = new StringBuilder();
 
-			loopBeginPointers = new Stack<int>();
+			_loopBeginPointers = new Stack<int>();
 		}
 	}
 }

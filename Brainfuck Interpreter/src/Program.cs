@@ -7,16 +7,15 @@ namespace Brainfuck_Interpreter
 	{
 		static void Main(string[] args)
 		{
-			Interpreter brainfuckInterpreter = new Interpreter();
+			var brainfuckInterpreter = new Interpreter();
 
 			while (true)
 			{
-				string filename = string.Empty;
-				string code = string.Empty;
+				string code;
 
 				if (args.Length > 0 && File.Exists(args[0]))
 				{
-					filename = args[0];
+					var filename = args[0];
 					code = File.ReadAllText(filename);
 
 					//Emptying args so the file wont be run on next iteration
@@ -37,7 +36,7 @@ namespace Brainfuck_Interpreter
 
 		private static string GetInput()
 		{
-			string code = string.Empty;
+			var code = string.Empty;
 
 			Console.Clear();
 			Console.Write("1. By file\n2. By Brainfuck code\nChoice: ");
@@ -45,7 +44,7 @@ namespace Brainfuck_Interpreter
 			switch (choice)
 			{
 				case '1':
-					string inputFilename = string.Empty;
+					string inputFilename;
 					do
 					{
 						Console.Clear();
@@ -60,7 +59,7 @@ namespace Brainfuck_Interpreter
 				default:
 					Console.Clear();
 					Console.WriteLine("Enter your brainfuck code:");
-					string inputString = string.Empty;
+					string inputString;
 					do
 					{
 						inputString = Console.ReadLine();
