@@ -30,7 +30,7 @@ namespace Brainfuck_Interpreter
 
 		private char[] _tokens;
 
-		private readonly Dictionary<char, Action> _tokenToAction = new Dictionary<char, Action>();
+		private readonly Dictionary<char, Action> _tokenToAction = new();
 
 		public Interpreter()
 		{
@@ -53,12 +53,12 @@ namespace Brainfuck_Interpreter
 		{
 			_tokens = Instructions.Where(x => BrainfuckInstructions.Contains(x)).ToArray();
 
-			while(_instructionPointer < _tokens.Count())
+			while(_instructionPointer < _tokens.Length)
 			{
 				NextStep();
 			}
 
-			Console.WriteLine($">>>>>Output Start<<<<<:\n{_outputBuffer.ToString()}\n>>>>>Output End<<<<<\n");
+			Console.WriteLine($">>>>>Output Start<<<<<:\n{_outputBuffer}\n>>>>>Output End<<<<<\n");
 		}
 
 		private void NextStep()
@@ -127,7 +127,7 @@ namespace Brainfuck_Interpreter
 			//0 based loop depth
 			int depth = 0;
 			_instructionPointer++;
-			while (_instructionPointer < _tokens.Count())
+			while (_instructionPointer < _tokens.Length)
 			{
 				//New loop is one depth deeper
 				if (_tokens[_instructionPointer] == '[')
